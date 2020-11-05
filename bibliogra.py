@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2014-2017 Philipp Winter <phw@nymity.ch>
 #
@@ -74,7 +74,7 @@ def write_file(file_name, data):
         with open(file_name, "w") as fd:
             fd.write(data.encode("utf8"))
     except IOError as err:
-        print >> sys.stderr, "[+] Error writing file: %s" % err
+        print("[+] Error writing file: %s" % err, file=sys.stderr)
 
 
 def author_to_string(author):
@@ -299,7 +299,7 @@ def format_html(key, bib_entry, output_dir, hilight=None):
         html.append(format_authors(bib_entry.persons, hilight))
         html.append("</span>")
     except IndexError as err:
-        print >> sys.stderr, "[+] %s" % err
+        print("[+] %s" % err, file=sys.stderr)
 
     # Add venue/publication type.
 
@@ -352,7 +352,7 @@ def sort_by_year(bibdata, output_dir, sort_reverse=False):
         except KeyError:
             return 0
 
-    for bibkey in sorted(bibdata.entries.keys(),
+    for bibkey in sorted(list(bibdata.entries.keys()),
                          key=lambda k: (get_year(k), get_venue(k)),
                          reverse=sort_reverse):
 
@@ -368,7 +368,7 @@ def sort_by_year(bibdata, output_dir, sort_reverse=False):
             html.append(format_html(bibkey, bibdata.entries[bibkey],
                                     output_dir, hilight=str(year)))
         except NotImplementedError as err:
-            print >> sys.stderr, "[+] %s" % err
+            print("[+] %s" % err, file=sys.stderr)
             continue
 
     html.append("</ul>\n")
@@ -389,10 +389,10 @@ def sort_by_author(bibdata, output_dir, sort_reverse=False):
 
     for bibkey in bibdata.entries:
 
-        if len(bibdata.entries[bibkey].persons.values()) == 0:
+        if len(list(bibdata.entries[bibkey].persons.values())) == 0:
             continue
 
-        for author in bibdata.entries[bibkey].persons.values()[0]:
+        for author in list(bibdata.entries[bibkey].persons.values())[0]:
 
             if author_to_string(author) in publications:
                 publications[author_to_string(author)].append(bibkey)
@@ -402,7 +402,7 @@ def sort_by_author(bibdata, output_dir, sort_reverse=False):
     html.append("<ul>\n")
     author = None
 
-    for author in sorted(publications.keys(),
+    for author in sorted(list(publications.keys()),
                          key=lambda name: name.split(' ')[-1],
                          reverse=sort_reverse):
 
@@ -412,7 +412,7 @@ def sort_by_author(bibdata, output_dir, sort_reverse=False):
                                         output_dir,
                                         hilight=author))
         except NotImplementedError as err:
-            print >> sys.stderr, "[+] %s" % err
+            print("[+] %s" % err, file=sys.stderr)
             continue
 
         html.append("</ul>\n<ul>\n")
