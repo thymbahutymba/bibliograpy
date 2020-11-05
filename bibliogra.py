@@ -20,7 +20,7 @@ Turn BibTeX files into HTML bibliographies.
 
 import os
 import sys
-import cgi
+import html
 import errno
 import argparse
 
@@ -33,10 +33,10 @@ def latex_to_html(string):
     Convert LaTeX-formatted to HTML-formatted strings.
     """
 
-    # Note that cgi.escape() only takes care of the characters '&', '<', '>',
+    # Note that html.escape() only takes care of the characters '&', '<', '>',
     # and, since we set the "quote" parameter, '"'.
 
-    return cgi.escape(string.decode("latex"), quote=True)
+    return html.escape(string, quote=True)
 
 
 def create_directory(dir_name):
@@ -71,7 +71,7 @@ def write_file(file_name, data):
     """
 
     try:
-        with open(file_name, "w") as fd:
+        with open(file_name, "wb") as fd:
             fd.write(data.encode("utf8"))
     except IOError as err:
         print("[+] Error writing file: %s" % err, file=sys.stderr)
@@ -82,9 +82,9 @@ def author_to_string(author):
     Convert a `Person' object to string.
     """
 
-    first = " ".join(author.first())
-    middle = " ".join(author.middle())
-    last = " ".join(author.last())
+    first = " ".join(author.first_names)
+    middle = " ".join(author.middle_names)
+    last = " ".join(author.last_names)
 
     return " ".join([name for name in [first, middle, last] if name])
 
@@ -219,9 +219,9 @@ def format_authors(persons, hilight):
 
     for person in persons[author_type]:
         authors_list.append(
-            " ".join(person.first() + person.middle() + person.last()))
+            " ".join(person.first_names + person.middle_names + person.last_names))
 
-    authors_list = [authors.decode("latex") for authors in authors_list]
+    authors_list = [authors for authors in authors_list]
 
     authors_str = "%s%s<br/>" % (", ".join(authors_list), " (editors)"
                                  if author_type == "editor" else "")
@@ -237,7 +237,7 @@ def format_url(url):
     Return an HTML fragment with a clickable link.
     """
 
-    r = "<a href='%s'>" % cgi.escape(url)
+    r = "<a href='%s'>" % html.escape(url)
 
     if url.endswith(".pdf"):
         r += "<img class='icon' title='Download PDF'" \
@@ -353,7 +353,7 @@ def sort_by_year(bibdata, output_dir, sort_reverse=False):
             return 0
 
     for bibkey in sorted(list(bibdata.entries.keys()),
-                         key=lambda k: (get_year(k), get_venue(k)),
+                         key=lambda k: (str(get_year(k)), str(get_venue(k))),
                          reverse=sort_reverse):
 
         if not year:
