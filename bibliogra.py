@@ -221,7 +221,7 @@ def format_authors(persons, hilight):
         authors_list.append(
             " ".join(person.first_names + person.middle_names + person.last_names))
 
-    authors_list = [authors for authors in authors_list]
+    authors_list = [authors.encode().decode("latex") for authors in authors_list]
 
     authors_str = "%s%s<br/>" % (", ".join(authors_list), " (editors)"
                                  if author_type == "editor" else "")
